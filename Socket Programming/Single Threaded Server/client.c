@@ -5,6 +5,7 @@
 #include <netdb.h>
 #include <memory.h>
 #include "../common.h"
+#include <unistd.h>
 
 #define DEST_PORT 2000
 #define SERVER_IP_ADDRESS "127.0.0.1"
@@ -28,22 +29,24 @@ void setup_tcp_communication(){
 
     int socket_descriptor = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-    connect(socket_descriptor, (struct sockaddr *)&server_addr, sizeof(struct sockaddr));
+    if (connect(socket_descriptor, (struct sockaddr *)&server_addr, sizeof(struct sockaddr)) != -1){
+        printf("Client is connected with server Ip: %s, Port: %d\n", SERVER_IP_ADDRESS, DEST_PORT);
+    }
 
-    input_struct_t client_data;
-    result_struct_t result;
 
     PROMPT_USER:
+        input_struct_t input_data;
+        result_struct_t result;
         /*prompt the user to enter data*/
         printf("Enter a : ?\n");
-        scanf("%u", &client_data.a);
+        scanf("%u", &input_data.a);
         printf("Enter b : ?\n");
-        scanf("%u", &client_data.b);
+        scanf("%u", &input_data.b);
 
         socklen_t socket_address_length = sizeof(struct sockaddr);
 
         int sent_recv_bytes = sendto(socket_descriptor, 
-           &client_data,
+           &input_data,
            sizeof(input_struct_t), 
            0, 
            (struct sockaddr *)&server_addr, 
@@ -57,6 +60,12 @@ void setup_tcp_communication(){
                         (struct sockaddr *)&server_addr, &socket_address_length);
         
         printf("No of bytes recvd = %d\n", sent_recv_bytes);
+
+        if (sent_recv_bytes == 0) {
+            printf("Server has closed the connection\n");
+            close(socket_descriptor);
+            return;
+        }
     
         printf("Result recvd = %u\n", result.c);
 

@@ -14,7 +14,17 @@
 
 char data_buffer[1024];
 
-
+/*
+This method will create a tcp server, this tcp server will server only one client at a time, if the current client
+close the connection by any means, then the server will be available to take new client. But any number of client
+can connected with the sever at the same time, server will server one by one upon completing current client connection.
+For example 
+    - when start the server start, it will start listening on port 2000
+    - client-1 arrived and connected, server started waiting to listen it's value
+    - after get it's value server will serve the result and start listen to serve it again
+    - in the meanwhile if client-2, client-3 send request to connect server connect but can't server
+    - server will server clint-2 if client-1 want to close it's connection.
+*/
 void setup_tcp_server_communication()
 {
     int master_socket_tcp_file_descriptor = 0;
@@ -63,56 +73,63 @@ void setup_tcp_server_communication()
         return;
     }
 
-    /*Server is waiting for client connection at the master socket.*/
-    client_socket_tcp_file_descriptor = accept(master_socket_tcp_file_descriptor,
-                                               (struct sockaddr *)&client_addr, &socket_address_length);
-
-    if (client_socket_tcp_file_descriptor < 0)
-    {
-        /* if accept failed to return a socket descriptor, display error and exit */
-        printf("accept error : errno = %d\n", errno);
-    }
-
-    printf("Connection accepted from client : %s:%u\n",
-        inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
+    printf("Server is listening on port : %d\n", SERVER_PORT);
 
 
-    /* Server infinite loop for servicing the client. */    
+    /* Server infinite loop for serving the clients. */    
     while (1)
     {
-        printf("Server is ready to service client messages.\n");
+        /*Server is waiting for client connection at the master socket.*/
+        client_socket_tcp_file_descriptor = accept(master_socket_tcp_file_descriptor,
+                                                (struct sockaddr *)&client_addr, &socket_address_length);
 
-        /*Drain to store client info (ip and port) when data arrives from client, sometimes, server would want to find the identity of the client sending msgs*/
-        memset(data_buffer, 0, sizeof(data_buffer));
-
-        int received_bytes = recvfrom(client_socket_tcp_file_descriptor,
-                    (char *)data_buffer,
-                    sizeof(data_buffer), 0,
-                    (struct sockaddr *)&client_addr, &socket_address_length);
-
-        printf("Server received %d bytes from client %s:%u\n", received_bytes,
-                                inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
-
-        if (received_bytes == 0) {
-            close(client_socket_tcp_file_descriptor);
-            break;
+        if (client_socket_tcp_file_descriptor < 0)
+        {
+            /* if accept failed to return a socket descriptor, display error and exit */
+            printf("accept error : errno = %d\n", errno);
+            continue;
         }
 
-        input_struct_t *client_data = (input_struct_t *)data_buffer;
+        printf("Connection accepted from client : %s:%u\n",
+            inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
 
-        if (client_data->a == 0 && client_data->b == 0) {
-            close(client_socket_tcp_file_descriptor);
-            printf("Server closes connection with client : %s:%u\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
-            break;
+        
+        while(1){
+            printf("Server is ready to serve to the connected client messages.\n");
+
+            /*Drain to store client info (ip and port) when data arrives from client, sometimes, server would want to find the identity of the client sending msgs*/
+            memset(data_buffer, 0, sizeof(data_buffer));
+
+            int received_bytes = recvfrom(client_socket_tcp_file_descriptor,
+                        (char *)data_buffer,
+                        sizeof(data_buffer), 0,
+                        (struct sockaddr *)&client_addr, &socket_address_length);
+
+            printf("Server received %d bytes from client %s:%u\n", received_bytes,
+                                    inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
+
+            if (received_bytes == 0) {
+                close(client_socket_tcp_file_descriptor);
+                printf("Server closes connection with client : %s:%u\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
+                break;
+            }
+
+            input_struct_t *client_data = (input_struct_t *)data_buffer;
+
+            if (client_data->a == 0 && client_data->b == 0) {
+                close(client_socket_tcp_file_descriptor);
+                printf("Server closes connection with client : %s:%u\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
+                break;
+            }
+
+            result_struct_t result;
+            result.c = client_data->a + client_data->b;
+
+            int sent_recv_bytes = sendto(client_socket_tcp_file_descriptor, (char *)&result, sizeof(result_struct_t), 0,
+                    (struct sockaddr *)&client_addr, socket_address_length);
+
+            printf("Server sent %d bytes in reply to client\n", sent_recv_bytes);
         }
-
-        result_struct_t result;
-        result.c = client_data->a + client_data->b;
-
-        int sent_recv_bytes = sendto(client_socket_tcp_file_descriptor, (char *)&result, sizeof(result_struct_t), 0,
-                (struct sockaddr *)&client_addr, socket_address_length);
-
-        printf("Server sent %d bytes in reply to client\n", sent_recv_bytes);
     }
 }
 
