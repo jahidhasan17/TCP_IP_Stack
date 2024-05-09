@@ -25,6 +25,12 @@ For example
     - in the meanwhile if client-2, client-3 send request to connect server connect but can't server
     - server will server clint-2 if client-1 want to close it's connection.
 */
+
+/*
+In this single client server, can't serve more than one means - it can't track older client that the server served previously.
+Though this server can server multiple person upon connecting those server one after another, but it can't server previous one
+because there is no machanism to remember previous client file_descriptor,
+*/
 void setup_tcp_server_communication()
 {
     int master_socket_tcp_file_descriptor = 0;
