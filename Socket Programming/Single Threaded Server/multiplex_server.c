@@ -74,6 +74,10 @@ static int get_total_connected_client() {
     return count;
 }
 
+/*
+In this multiplexing tcp server can serve multiple client at a time, it can store the client socket descriptor and reuse this socket descriptor when client
+send messages.
+*/
 void setup_tcp_server_communication()
 {
     /*Server socket descriptor, used for accepting client connection.*/
