@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <memory.h>
 
 
 
@@ -25,6 +26,7 @@ node_t *create_graph_node(graph_t *graph, char *node_name) {
     node->node_name[NODE_NAME_SIZE] = '\0';
 
     init_glthread(&node->graph_glue);
+    init_node_nw_prop(&node->node_nw_prop);
     glthread_add_next(&graph->node_list, &node->graph_glue);
 
     return node;
@@ -48,18 +50,22 @@ void insert_link_between_two_nodes(
 
     int next_available_slot = get_node_intf_available_slot(node1);
     node1->intf[next_available_slot] = &link->intf1;
+    init_intf_nw_prop(&link->intf1.intf_nw_props);
+    interface_assign_mac_address(&link->intf1);
     /*--------------------end of first interface creation-------------------*/
 
 
 
     /*--------------------creating second interface-------------------------*/
-    strncpy(link->intf2.if_name, from_if_name, IF_NAME_SIZE);
+    strncpy(link->intf2.if_name, to_if_name, IF_NAME_SIZE);
     link->intf2.if_name[IF_NAME_SIZE] = '\0';
     link->intf2.att_node = node2;
     link->intf2.link = link;
 
     next_available_slot = get_node_intf_available_slot(node2);
     node2->intf[next_available_slot] = &link->intf2;
+    init_intf_nw_prop(&link->intf2.intf_nw_props);
+    interface_assign_mac_address(&link->intf2);
     /*--------------------end of second interface creation-------------------*/
 }
 
@@ -96,9 +102,8 @@ void dump_interface(interface_t *interface) {
     link_t *link = interface->link;
     node_t *nbr_node = get_nbr_node(interface);
 
-    printf(" Local Node : %s, Interface Name = %s, Nbr Node %s, cost = %u\n", 
-                interface->att_node->node_name, 
-                interface->if_name,
-                nbr_node->node_name,
-                link->cost);
+    printf("Interface Name = %s\n\tNbr Node %s, Local Node : %s, cost = %u\n", 
+            interface->if_name, 
+            interface->att_node->node_name, 
+            nbr_node->node_name, link->cost);
 }
