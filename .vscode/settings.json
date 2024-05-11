@@ -5,5 +5,6 @@
         "inet.h": "c",
         "cstdlib": "c",
         "string.h": "c"
-    }
+    },
+    "C_Cpp.errorSquiggles": "disabled"
 }
