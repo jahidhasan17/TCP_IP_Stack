@@ -4,7 +4,7 @@
         "stdlib.h": "c",
         "inet.h": "c",
         "cstdlib": "c",
-        "string.h": "c"
-    },
-    "C_Cpp.errorSquiggles": "disabled"
+        "string.h": "c",
+        "system_error": "c"
+    }
 }

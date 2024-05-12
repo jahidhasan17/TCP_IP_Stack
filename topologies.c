@@ -1,4 +1,7 @@
 #include "graph.h"
+#include "comm.h"
+
+extern void network_start_pkt_receiver_thread(graph_t *topo);
 
 graph_t *
 build_first_topo(){
@@ -47,6 +50,19 @@ build_first_topo(){
     node_set_loopback_address(R2_re, "122.1.1.2");
     node_set_intf_ip_address(R2_re, "eth0/3", "30.1.1.2", 24);
     node_set_intf_ip_address(R2_re, "eth0/5", "40.1.1.2", 24);
+
+    network_start_pkt_receiver_thread(topo);
+
+    /*Testing communication*/
+    char data[32];
+    strncpy(data, "test data\0", 32);
+    interface_t *oif = get_node_if_by_name(R0_re, "eth0/0");
+    assert(oif);
+    //send_pkt_out(data, strlen(data), oif);
+
+    //send_pkt_flood(R0_re, data, strlen(data));
+    //send_pkt_flood(R1_re, data, strlen(data));
+    send_pkt_flood(R2_re, data, strlen(data));
 
     return topo;
 }

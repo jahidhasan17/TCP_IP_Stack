@@ -4,7 +4,7 @@
 #include <string.h>
 #include <memory.h>
 
-
+extern void init_udp_socket(node_t *node);
 
 graph_t *create_new_graph(char *topology_name){
 
@@ -24,6 +24,8 @@ node_t *create_graph_node(graph_t *graph, char *node_name) {
 
     strncpy(node->node_name, node_name, NODE_NAME_SIZE);
     node->node_name[NODE_NAME_SIZE] = '\0';
+
+    init_udp_socket(node);
 
     init_glthread(&node->graph_glue);
     init_node_nw_prop(&node->node_nw_prop);
