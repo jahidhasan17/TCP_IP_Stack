@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-g -Wall
+CFLAGS=-g -Wall -Wno-stringop-truncation -Wpointer-to-int-cast -Woverflow
 INCLUDES=-I .
 CLILIB=libcli.a
 TARGET:exe ${CLILIB}
