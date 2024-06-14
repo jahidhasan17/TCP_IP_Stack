@@ -1,7 +1,8 @@
 #include "graph.h"
 #include "comm.h"
 
-extern void network_start_pkt_receiver_thread(graph_t *topo);
+extern void
+network_start_pkt_receiver_thread(graph_t *topo);
 
 graph_t *
 build_first_topo(){

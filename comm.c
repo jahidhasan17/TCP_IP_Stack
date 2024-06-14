@@ -102,6 +102,9 @@ int send_pkt_out(char *pkt, unsigned int pkt_size, interface_t *interface) {
 
     memcpy(pkt_with_aux_data + IF_NAME_SIZE, pkt, pkt_size);
 
+    printf("Sending Packet of size %d from Node %s to Node %s on UDP Port %d\n",
+            pkt_size, sending_node->node_name, nbr_node->node_name, dst_udp_port_no);
+
     rc = _send_pkt_out(sock, pkt_with_aux_data, pkt_size + IF_NAME_SIZE, dst_udp_port_no);
 
     close(sock);

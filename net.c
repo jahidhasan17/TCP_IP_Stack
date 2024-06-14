@@ -3,13 +3,26 @@
 #include "utils.h"
 #include <stdio.h>
 
+/*Just some Random number generator*/
+static unsigned int hash_code(void *ptr, unsigned int size){
+    unsigned int value=0, i =0;
+    char *str = (char*)ptr;
+    while(i < size)
+    {
+        value += *str;
+        value*=97;
+        str++;
+        i++;
+    }
+    return value;
+}
 
 /*Heuristics, Assign a unique mac address to interface*/
 void interface_assign_mac_address(interface_t *interface) {
 
-    memset(IF_MAC(interface), 0, 48);
-    strcpy(IF_MAC(interface), interface->att_node->node_name);
-    strcat(IF_MAC(interface), interface->if_name);
+    unsigned int hash_code_val = hash_code(interface, sizeof(interface_t));
+    memset(IF_MAC(interface), 0, sizeof(IF_MAC(interface)));
+    memcpy(IF_MAC(interface), (char *)&hash_code_val, sizeof(unsigned int));
 }
 
 bool_t node_set_device_type(node_t *node, unsigned int F) {
@@ -104,4 +117,33 @@ void dump_nw_graph(graph_t *graph){
         }
     } ITERATE_GLTHREAD_END(&graph->node_list, curr);
 
+}
+
+interface_t *node_get_matching_subnet_interface(node_t *node, char *ip_addr) {
+    
+    interface_t *interface;
+    char ip_network[16];
+    char ip_mask = 0;
+    char ip_addr_subnet[16];
+
+    for (int i = 0; i < MAX_INTF_PER_NODE; i++) {
+        interface = node->intf[i];
+
+        if (!interface) {
+            return NULL;
+        }
+
+        if (!interface->intf_nw_props.is_ipadd_config) {
+            continue;
+        }
+
+        apply_mask(IF_IP(interface), interface->intf_nw_props.mask, ip_network);
+        apply_mask(ip_addr, interface->intf_nw_props.mask, ip_addr_subnet);
+
+        if (strncmp(ip_network, ip_addr_subnet, 16) == 0) {
+            return interface;
+        }
+    }
+
+    return NULL;
 }

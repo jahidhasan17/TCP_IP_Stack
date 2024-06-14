@@ -86,6 +86,6 @@ void delete_arp_table_entry(arp_table_t *arp_table, char *ip_addr);
 void dump_arp_table(arp_table_t *arp_table);
 
 
-void arp_table_update_from_arp_reply(arp_entry_t *arp_table, arp_hdr_t *arp_hdr, interface_t *iif);
+void arp_table_update_from_arp_reply(arp_table_t *arp_table, arp_hdr_t *arp_hdr, interface_t *iif);
 
 #endif /* __LAYER2__ */

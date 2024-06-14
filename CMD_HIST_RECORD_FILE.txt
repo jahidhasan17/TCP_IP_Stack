@@ -1,3 +1,33 @@
 show help
 show topology
 show topology
+show topology
+show node R0_re arp
+run node R0_re resolve-arp 20.1.1.2
+show node R0_re arp
+run node R0_re resolve-arp 20.1.1.2
+show node R0_re arp
+show node R0_re arp
+show topology
+run node R0_re resolve-arp 20.1.1.2
+show node R0_re arp
+show topology
+show node R0_re arp
+show node R0_re arp
+show node R0_re arp
+run node R0_re resolve-arp 20.1.1.2
+show node R0_re arp
+show node R0_re arp
+run node R0_re resolve-arp 20.1.1.2
+show node R0_re arp
+run node R0_re resolve-arp 20.1.1.2
+show node R0_re arp
+run node R0_re resolve-arp 20.1.1.2
+show node R0_re arp
+run node R0_re resolve-arp 20.1.1.2
+show node R0_re arp
+run node R0_re resolve-arp 20.1.1.2
+show node R0_re arp
+show node R0_re arp
+run node R0_re resolve-arp 20.1.1.2
+show node R0_re arp
